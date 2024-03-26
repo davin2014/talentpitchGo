@@ -43,18 +43,7 @@ CREATE TABLE IF NOT EXISTS programs (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
 );
 
--- Remove the  from the table creation statement
-CREATE TABLE IF NOT EXISTS programs (
-    id VARCHAR(255) PRIMARY KEY,
-    title VARCHAR(255),
-    description TEXT,
-    start_date DATE,
-    end_date DATE,
-    user_id VARCHAR(255),
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+
 
 
  
