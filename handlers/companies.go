@@ -1,25 +1,21 @@
-
 // El paquete handlers contiene los controladores de las rutas HTTP.
 package handlers
 
 import (
 	"encoding/json"
-	
+	"log"
+
 	"net/http"
-	
-	"fmt"
+
 	"errors"
-	
+	"fmt"
 
 	"talentpitchGo/models"     // modelos de datos
 	"talentpitchGo/repository" // operaciones de base de datos
 	"talentpitchGo/server"     // configuración del servidor
 
-	
 	"github.com/segmentio/ksuid" // para generar IDs únicos
-	
 )
-
 
 // CompanyRequest es una estructura que representa la solicitud de creación de una empresa.
 type CompanyRequest  struct {
@@ -48,6 +44,8 @@ func CreateCompanyHandler(s server.Server) http.HandlerFunc {
 		err := json.NewDecoder(r.Body).Decode(&request)
 		// Verificar si hubo un error decodificando el cuerpo de la solicitud
 		if err != nil {
+			// Loggear el error
+			log.Printf("Error decoding request: %v", err)
 			// Retornar un error de solicitud incorrecta
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -81,25 +79,14 @@ func CreateCompanyHandler(s server.Server) http.HandlerFunc {
 		err = repository.InsertCompany(r.Context(), &company)
 		// Verificar si hubo un error guardando la empresa en la base de datos
 		if err != nil {
+			// Loggear el error
+			log.Printf("Error inserting company: %v", err)
 			// Retornar un error interno del servidor
 			http.Error(w, "Error interno del servidor", http.StatusInternalServerError)
 			return
 		}
 
-		// Crear la respuesta de la empresa creada
-		response := CompanyResponse{
-			Id:   company.Id,
-			Name: company.Name,
-		}
-
-		// Codificar la respuesta de la empresa creada
-		err = json.NewEncoder(w).Encode(response)
-		// Verificar si hubo un error codificando la respuesta
-		if err != nil {
-			// Retornar un error interno del servidor
-			http.Error(w, "Error interno del servidor", http.StatusInternalServerError)
-			return
-		}
+		
 		// Retornar la respuesta
 		w.Header().Set("Content-Type", "application/json")
 		// Codificar la respuesta

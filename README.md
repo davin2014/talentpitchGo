@@ -3,6 +3,25 @@
 
 Este proyecto es una aplicación web construida con Go. Utiliza el paquete `gorilla/mux` para el enrutamiento HTTP y `joho/godotenv` para cargar variables de entorno desde un archivo `.env`.
 
+
+## Docker
+
+Este proyecto utiliza Docker para contenerizar la base de datos. Puedes construir y ejecutar el contenedor de la base de datos utilizando los siguientes comandos:
+
+Primero, navega al directorio de la base de datos:
+
+```bash
+cd database
+```
+
+```bash
+docker build . -t talen-db
+```
+
+```bash
+docker run -p 54321:5432 talen-db
+```
+
 ## Comenzando
 
 Estas instrucciones te permitirán obtener una copia del proyecto en funcionamiento en tu máquina local para propósitos de desarrollo y pruebas.

@@ -1,7 +1,5 @@
 
-cd 
-
-
+cd database
 
 docker build . -t talen-db
 

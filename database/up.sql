@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS challenges (
 );
 
 CREATE TABLE IF NOT EXISTS companies (
-    id INT PRIMARY KEY,
+    id VARCHAR(255) PRIMARY KEY,
     name VARCHAR(255),
     image_path VARCHAR(255) NULL,
     location VARCHAR(255),
