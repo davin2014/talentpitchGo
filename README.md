@@ -51,6 +51,31 @@ La aplicación tiene las siguientes rutas:
 
 Por favor lee [CONTRIBUTING.md](https://gist.github.com/usuario/talentpitchGo/contributing.md) para detalles de nuestro código de conducta, y el proceso para enviarnos pull requests.
 
+
+## DevOps
+
+Este proyecto utiliza AWS CodeBuild para la integración continua y la entrega continua (CI/CD). El archivo `buildspec.yml` define las fases y comandos que CodeBuild utilizará para construir y empaquetar la aplicación.
+
+### Fases
+
+El archivo `buildspec.yml` define dos fases: `install` y `build`.
+
+#### Install
+
+En la fase `install`, se especifica la versión de Go que se utilizará para construir la aplicación. En este caso, se utiliza Go 1.15.
+
+#### Build
+
+En la fase `build`, se definen los comandos que se ejecutarán para construir la aplicación. En este caso, se imprime un mensaje en la consola y luego se utiliza el comando `go build -o application` para construir la aplicación.
+
+### Artifacts
+
+Los artefactos son los archivos que se generarán después de que se complete la fase de construcción. En este caso, el archivo `application` que se genera al construir la aplicación se especifica como un artefacto.
+
+### Version
+
+La versión del archivo `buildspec.yml` es 0.2. Esta es la versión del formato del archivo `buildspec.yml` que se está utilizando, no la versión de la aplicación.
+
 ## Licencia
 
 Este proyecto está bajo la Licencia (Tu licencia) - mira el archivo [LICENSE.md](LICENSE.md) para detalles
