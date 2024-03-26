@@ -1,0 +1,8 @@
+
+cd 
+
+
+
+docker build . -t talen-db
+
+docker run -p 54321:5432 talen-db
