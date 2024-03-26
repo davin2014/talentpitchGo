@@ -124,6 +124,10 @@ func GetCompanyById(ctx context.Context, id string) (*models.Company, error) {
 	if ctx == nil {
 		return nil, errors.New("context cannot be nil")
 	}
+	// Verificar que el ID de la empresa no esté vacío
+	if id == "" {
+		return nil, errors.New("company id cannot be empty")
+	}
 	// Obtener la empresa de la base de datos
 	return implementationCompany.GetCompanyById(ctx, id)
 }

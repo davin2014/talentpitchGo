@@ -102,7 +102,7 @@ func GetCompanyHandler(s server.Server) http.HandlerFunc {
 	// Retornar la función del controlador
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Obtener el ID de la empresa de los parámetros de la URL
-		id := r.URL.Query().Get("id")
+		id := mux.Vars(r)["id"]
 		// Verificar si el ID de la empresa está vacío
 		if id == "" {
 			// Retornar un error de solicitud incorrecta
