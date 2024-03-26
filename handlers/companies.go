@@ -4,7 +4,7 @@ package handlers
 import (
 	"encoding/json"
 	"log"
-
+    
 	"net/http"
 
 	"errors"
@@ -13,7 +13,7 @@ import (
 	"talentpitchGo/models"     // modelos de datos
 	"talentpitchGo/repository" // operaciones de base de datos
 	"talentpitchGo/server"     // configuración del servidor
-
+    "github.com/gorilla/mux" // enrutador HTTP
 	"github.com/segmentio/ksuid" // para generar IDs únicos
 )
 
@@ -94,5 +94,105 @@ func CreateCompanyHandler(s server.Server) http.HandlerFunc {
 			Id: company.Id, 
 			Name: company.Name,
 		})
+	}
+}
+
+// GetCompanyHandler es un controlador que maneja la obtención de una empresa por su ID.
+func GetCompanyHandler(s server.Server) http.HandlerFunc {
+	// Retornar la función del controlador
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Obtener el ID de la empresa de los parámetros de la URL
+		id := r.URL.Query().Get("id")
+		// Verificar si el ID de la empresa está vacío
+		if id == "" {
+			// Retornar un error de solicitud incorrecta
+			http.Error(w, "ID de empresa vacío", http.StatusBadRequest)
+			return
+		}
+
+		// Obtener la empresa por su ID
+		company, err := repository.GetCompanyById(r.Context(), id)
+		// Verificar si hubo un error obteniendo la empresa
+		if err != nil {
+			// Si hay un error, verifica si es porque la empresa no fue encontrada
+			if errors.Is(err, fmt.Errorf("no company found with id %s", id)) {
+				http.Error(w, "Empresa no encontrada", http.StatusNotFound)
+			} else {
+				// Si hay un error diferente, retornar un error interno del servidor
+				http.Error(w, "Error interno del servidor", http.StatusInternalServerError)
+			}
+			return
+		}
+
+		// Retornar la respuesta
+		w.Header().Set("Content-Type", "application/json")
+		// Codificar la respuesta
+		json.NewEncoder(w).Encode(company)
+	}
+}
+
+// UpdateCompanyHandler es un controlador que maneja la actualización de una empresa por su ID.
+func UpdateCompanyHandler(s server.Server) http.HandlerFunc {
+	// Retornar la función del controlador
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Decodificar el cuerpo de la solicitud
+		var request CompanyRequest
+		// Decodificar el cuerpo de la solicitud
+		err := json.NewDecoder(r.Body).Decode(&request)
+		// Verificar si hubo un error decodificando el cuerpo de la solicitud
+		if err != nil {
+			// Loggear el error
+			log.Printf("Error decoding request: %v", err)
+			// Retornar un error de solicitud incorrecta
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		// Obtener el ID del usuario de la URL
+		id := mux.Vars(r)["id"]
+
+		// Obtener la empresa por su ID
+		company, err := repository.GetCompanyById(r.Context(), id)
+		// Verificar si hubo un error obteniendo la empresa
+		if err != nil {
+			// Si hay un error, verifica si es porque la empresa no fue encontrada
+			if errors.Is(err, fmt.Errorf("no company found with id %s", request.Id)) {
+				log.Printf("Company not found: %v", err)
+				http.Error(w, "Empresa no encontrada", http.StatusNotFound)
+			} else {
+				log.Printf("Error getting company: %v", err)
+				// Si hay un error diferente, retornar un error interno del servidor
+				http.Error(w, "Error interno del servidor", http.StatusInternalServerError)
+			}
+			return
+		}
+
+		
+
+		// Crear una nueva estructura de empresa con los datos actualizados
+		companyReq := models.Company{
+			Id:        request.Id,
+			Name:      request.Name,
+			ImagePath: request.ImagePath,
+			Location:  request.Location,
+			Industry:  request.Industry,
+			UserID:    request.UserID,
+		}
+
+		
+		// Guardar la empresa actualizada en la base de datos
+		err = repository.UpdateCompany(r.Context(), id, &companyReq)
+		// Verificar si hubo un error guardando la empresa en la base de datos
+		if err != nil {
+			// Loggear el error
+			log.Printf("Error updating company: %v", err)
+			// Retornar un error interno del servidor
+			http.Error(w, "Error interno del servidor", http.StatusInternalServerError)
+			return
+		}
+
+		// Retornar la respuesta
+		w.Header().Set("Content-Type", "application/json")
+		// Codificar la respuesta
+		json.NewEncoder(w).Encode(company)
 	}
 }
