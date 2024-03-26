@@ -4,7 +4,7 @@ package handlers
 import (
 	"encoding/json"
 	"log"
-    
+    "strconv"
 	"net/http"
 
 	"errors"
@@ -195,4 +195,79 @@ func UpdateCompanyHandler(s server.Server) http.HandlerFunc {
 		// Codificar la respuesta
 		json.NewEncoder(w).Encode(company)
 	}
+}
+
+// DeleteCompanyHandler es un controlador que maneja la eliminación de una empresa por su ID.
+func DeleteCompanyHandler(s server.Server) http.HandlerFunc {
+	// Retornar la función del controlador
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Obtener el ID de la empresa de los parámetros de la URL
+		id := mux.Vars(r)["id"]
+		// Verificar si el ID de la empresa está vacío
+		if id == "" {
+			// Retornar un error de solicitud incorrecta
+			http.Error(w, "ID de empresa vacío", http.StatusBadRequest)
+			return
+		}
+
+		// Eliminar la empresa por su ID
+		err := repository.DeleteCompany(r.Context(), id)
+		// Verificar si hubo un error eliminando la empresa
+		if err != nil {
+			// Si hay un error, verifica si es porque la empresa no fue encontrada
+			if errors.Is(err, fmt.Errorf("no company found with id %s", id)) {
+				http.Error(w, "Empresa no encontrada", http.StatusNotFound)
+			} else {
+				// Si hay un error diferente, retornar un error interno del servidor
+				http.Error(w, "Error interno del servidor", http.StatusInternalServerError)
+			}
+			return
+		}
+
+		// Retornar la respuesta
+		w.Header().Set("Content-Type", "application/json")
+		// Codificar la respuesta
+		json.NewEncoder(w).Encode("Empresa eliminada exitosamente")
+	}
+}
+
+
+// ListCompaniesHandler es un controlador que maneja la obtención de todas las empresas.
+func ListCompaniesHandler(s server.Server) http.HandlerFunc {
+// Retornar la función del controlador
+return func(w http.ResponseWriter, r *http.Request) {
+	// Obtener la página de la URL
+	page := r.URL.Query().Get("page")
+	// Convertir page a int
+	pageNum, err := strconv.Atoi(page)
+	if err != nil {
+		log.Print("Error converting page to int")
+		// Manejar el error
+	}
+	// Obtener el tamaño de la página de la URL
+	pageSize := r.URL.Query().Get("pageSize")
+	// Convertir pageSize a int
+	pageSizeNum, err := strconv.Atoi(pageSize)
+	if err != nil {
+		log.Print("Error converting pageSize to int")
+		// Manejar el error
+	}
+	// Obtener la lista de usuarios
+	companies, total, err := repository.GetCompanies(r.Context(), pageNum, pageSizeNum )
+	// Verificar si hubo un error obteniendo la lista de usuarios
+	if err != nil {
+		// Retornar un error interno del servidor
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	// Crear un mapa con la lista de usuarios y el total
+	response := map[string]interface{}{
+		"companies": companies,
+		"total": total,
+	}
+	// Retornar la respuesta
+	w.Header().Set("Content-Type", "application/json")
+	// Codificar la respuesta
+	json.NewEncoder(w).Encode(response)
+}
 }
