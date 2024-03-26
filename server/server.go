@@ -78,6 +78,8 @@ func (b *Broker) Start(binder func (s Server, r *mux.Router )) {
 	repository.SetUserRepository(repo)
 	// Establecer el repositorio de reto
 	repository.SetChallengeRepository(repo)
+	// Establecer el repositorio de empresa
+	repository.SetCompanyRepository(repo)
 	// Loggear el inicio del servidor
 	log.Printf("Server is running on port %s", b.Config().Port)
 	// Iniciar el servidor

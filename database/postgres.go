@@ -448,3 +448,222 @@ func (p *PostgresRepositoy) CloseChallenge() error {
 	return p.db.Close()
 }
 
+
+//********************************************************************************************************************
+//************************************************************* COMPANY ************************************************
+//********************************************************************************************************************
+
+// InsertCompany es una función que inserta una nueva empresa en la base de datos.
+func (p *PostgresRepositoy) InsertCompany(ctx context.Context, company *models.Company) error {
+	// Verificar que la base de datos está disponible
+	_, err := p.db.ExecContext(ctx, "SELECT 1")
+	if err != nil {
+		return errors.New("database is not available")
+	}
+
+	// Verificar que el repositorio no sea nil
+	if p == nil {
+		return errors.New("repository cannot be nil")
+	}
+
+	// Verificar que la base de datos no sea nil
+	if p.db == nil {
+		return errors.New("database cannot be nil")
+	}
+
+	// Verificar que el contexto no sea nil
+	if ctx == nil {
+		return errors.New("context cannot be nil")
+	}
+
+	// Verificar que la empresa no sea nil
+	if company == nil {
+		return errors.New("company cannot be nil")
+	}
+
+	// Verificar que los campos necesarios de la empresa no estén vacíos
+	if company.Name == "" {
+		return errors.New("company name cannot be empty")
+	}
+	if company.ImagePath == "" {
+		return errors.New("company image_path cannot be empty")
+	}
+	if company.Location == "" {
+		return errors.New("company location cannot be empty")
+	}
+	if company.Industry == "" {
+		return errors.New("company industry cannot be empty")
+	}
+	if company.UserID == "" {
+		return errors.New("company user_id cannot be empty")
+	}
+
+	// Insertar una nueva empresa en la base de datos
+	_, err = p.db.ExecContext(ctx, "INSERT INTO companies (id, name, image_path, location, industry, user_id) VALUES ($1, $2, $3, $4, $5, $6)",company.Id, company.Name, company.ImagePath, company.Location, company.Industry, company.UserID)
+	return err
+}
+
+
+// UpdateCompany es una función que actualiza una empresa en la base de datos.
+func (p *PostgresRepositoy) UpdateCompany(ctx context.Context, id string, company *models.Company) error {
+	// Verificar que la base de datos está disponible
+	_, err := p.db.ExecContext(ctx, "SELECT 1")
+	if err != nil {
+		return errors.New("database is not available")
+	}
+
+	// Verificar que el repositorio no sea nil
+	if p == nil {
+		return errors.New("repository cannot be nil")
+	}
+
+	// Verificar que la base de datos no sea nil
+	if p.db == nil {
+		return errors.New("database cannot be nil")
+	}
+
+	// Verificar que el contexto no sea nil
+	if ctx == nil {
+		return errors.New("context cannot be nil")
+	}
+
+	// Verificar que la empresa no sea nil
+	if company == nil {
+		return errors.New("company cannot be nil")
+	}
+
+	// Verificar que los campos necesarios de la empresa no estén vacíos
+	if company.Name == "" {
+		return errors.New("company name cannot be empty")
+	}
+	if company.ImagePath == "" {
+		return errors.New("company image_path cannot be empty")
+	}
+	if company.Location == "" {
+		return errors.New("company location cannot be empty")
+	}
+	if company.Industry == "" {
+		return errors.New("company industry cannot be empty")
+	}
+	if company.UserID == "" {
+		return errors.New("company user_id cannot be empty")
+	}
+
+	// Actualizar una empresa en la base de datos
+	_, err = p.db.ExecContext(ctx, "UPDATE companies SET name = $1, image_path = $2, location = $3, industry = $4, user_id = $5 WHERE id = $6", company.Name, company.ImagePath, company.Location, company.Industry, company.UserID, id)
+	return err
+}
+
+// DeleteCompany es una función que elimina una empresa de la base de datos por su ID.
+func (p *PostgresRepositoy) DeleteCompany(ctx context.Context, id string) error {
+	// Verificar que la base de datos está disponible
+	_, err := p.db.ExecContext(ctx, "SELECT 1")
+	if err != nil {
+		return errors.New("database is not available")
+	}
+
+	// Verificar que el repositorio no sea nil
+	if p == nil {
+		return errors.New("repository cannot be nil")
+	}
+
+	// Verificar que la base de datos no sea nil
+	if p.db == nil {
+		return errors.New("database cannot be nil")
+	}
+
+	// Verificar que el contexto no sea nil
+	if ctx == nil {
+		return errors.New("context cannot be nil")
+	}
+
+	// Eliminar una empresa de la base de datos
+	_, err = p.db.ExecContext(ctx, "DELETE FROM companies WHERE id = $1", id)
+	return err
+}
+
+// GetCompanies es una función que obtiene empresas de la base de datos con paginación.
+func (p *PostgresRepositoy) GetCompanies(ctx context.Context, page int, pageSize int) ([]*models.Company, int, error) {
+	var companies []*models.Company
+	// Comprobar si la página y el tamaño de la página son válidos
+	if page < 1 || pageSize < 1 {
+		return nil, 0, errors.New("invalid page number or page size")
+	}
+
+	// Calcular el offset
+	offset := (page - 1) * pageSize
+
+	// Ejecutar la consulta para obtener empresas
+	rows, err := p.db.QueryContext(ctx, "SELECT id, name, image_path, location, industry, user_id FROM companies ORDER BY id LIMIT $1 OFFSET $2", pageSize, offset)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer rows.Close()
+
+	// Iterar sobre los resultados
+	for rows.Next() {
+		var company = models.Company{}
+		if err = rows.Scan(&company.Id, &company.Name, &company.ImagePath, &company.Location, &company.Industry, &company.UserID); err != nil {
+			return nil, 0, err
+		}
+		companies = append(companies, &company)
+	}
+
+	// Comprobar si hubo errores durante la iteración
+	if err = rows.Err(); err != nil {
+		return nil, 0, err
+	}
+
+	// Ejecutar la consulta para contar el número total de empresas
+	row := p.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM companies")
+	var count int
+	err = row.Scan(&count)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// Devolver las empresas y el conteo
+	return companies, count, nil
+}
+
+// GetCompanyById es una función que obtiene una empresa de la base de datos por su ID.
+func (p *PostgresRepositoy) GetCompanyById(ctx context.Context, id string) (*models.Company, error) {
+	// Crear una nueva estructura de empresa
+	var company = models.Company{}
+	// Obtener una empresa de la base de datos por su ID
+	rows, err := p.db.QueryContext(ctx, "SELECT id, name, image_path, location, industry, user_id FROM companies WHERE id = $1", id)
+	// Manejar el error si existe
+	if err != nil {
+		return nil, err
+	}
+	// Cerrar la conexión a la base de datos
+	defer func() {
+		err = rows.Close()
+		if err != nil {
+			log.Fatal("Error closing database connection: ", err)
+		}
+	}()
+	// Iterar sobre los resultados de la consulta
+	for rows.Next() {
+		if err = rows.Scan(&company.Id, &company.Name, &company.ImagePath, &company.Location, &company.Industry, &company.UserID); err == nil {
+			return &company, nil
+		}
+	}
+
+	// Iterar sobre los resultados de la consulta
+	if !rows.Next() {
+		return nil, fmt.Errorf("no user found with id %s", id)
+	}
+	// Manejar el error si existe
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	// Devolver la empresa
+	return &company, nil
+}
+
+// CloseCompany es una función que cierra la conexión a la base de datos.
+func (p *PostgresRepositoy) CloseCompany() error {
+	return p.db.Close()
+}
+

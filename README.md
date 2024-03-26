@@ -31,6 +31,16 @@ Para ejecutar la aplicación, usa el siguiente comando en el directorio del proy
 go run main.go
 ```
 
+## Pruebas Unitarias
+
+Este proyecto utiliza el marco de pruebas incorporado en Go para realizar pruebas unitarias. Puedes ejecutar las pruebas unitarias utilizando el comando `go test`.
+
+Por ejemplo, para ejecutar las pruebas unitarias para el manejador de usuarios, puedes usar el siguiente comando:
+
+```bash
+go test ./handlers/tests/
+go test ./handlers/tests/user_test.go
+
 ## Rutas de la aplicación
 
 La aplicación tiene las siguientes rutas:

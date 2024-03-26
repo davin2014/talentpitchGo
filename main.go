@@ -67,5 +67,14 @@ func BindRoutes(s server.Server, r *mux.Router) {
 	r.HandleFunc("/deleteChallenge/{id}", handlers.DeleteChallengeHandler(s)).Methods(http.MethodDelete)
 	r.HandleFunc("/challenges", handlers.ListChallengesHandler(s)).Methods(http.MethodGet)
 	r.HandleFunc("/challenges/{id}", handlers.GetChallengeHandler(s)).Methods(http.MethodGet)
+//************************************************************************************************************************
+//************************************************************* COMPANY **************************************************
+//************************************************************************************************************************
+	r.HandleFunc("/companies", handlers.CreateCompanyHandler(s)).Methods(http.MethodPost)
+	//r.HandleFunc("/updateCompany/{id}", handlers.UpdateCompanyHandler(s)).Methods(http.MethodPut)
+	//r.HandleFunc("/deleteCompany/{id}", handlers.DeleteCompanyHandler(s)).Methods(http.MethodDelete)
+	//r.HandleFunc("/companies", handlers.ListCompaniesHandler(s)).Methods(http.MethodGet)
+	//r.HandleFunc("/companies/{id}", handlers.GetCompanyHandler(s)).Methods(http.MethodGet)
+
 
 }

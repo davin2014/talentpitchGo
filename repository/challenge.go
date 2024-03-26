@@ -9,7 +9,6 @@ import (
 
 
 // ChallengeRepository es una interfaz que define las operaciones de base de datos para los usuarios.
-
 type ChallengeRepository interface {
 	// InsertChallenge es una función que inserta un nuevo reto en la base de datos.
 	InsertChallenge(ctx context.Context, challenge *models.Challenge) error
